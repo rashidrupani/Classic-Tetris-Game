@@ -1,0 +1,21 @@
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+
+# Local site-owner config (ads/analytics keys) — keep the template in
+# config.php but don't force your real config to overwrite a clone's.
+# Comment this out if you *want* config.php tracked as-is.
+# config.php
+
+# Player-generated data — don't ship real player scores/rate-limit state
+# in the repo; the app creates these automatically on first run.
+data/scores.json
+data/ratelimit.json
+
+# Never commit real scores/ratelimit data, but keep the folder + protection
+!data/.htaccess

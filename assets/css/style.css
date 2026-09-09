@@ -1,0 +1,907 @@
+/* ==========================================================================
+   Classic Tetris — style.css
+   Retro 90s arcade aesthetic, rebuilt for modern responsive browsers.
+   ========================================================================== */
+
+@font-face {
+  font-family: 'PressStart2P-fallback';
+  src: local('Press Start 2P');
+}
+
+:root {
+  --bg-deep: #05050a;
+  --bg-panel: #12121f;
+  --bg-panel-light: #1b1b2e;
+  --border-neon: #3a3a5c;
+  --accent-cyan: #00f0f0;
+  --accent-yellow: #f0f000;
+  --accent-magenta: #f000f0;
+  --accent-green: #00f000;
+  --accent-red: #f00000;
+  --accent-orange: #ff9900;
+  --accent-blue: #4060ff;
+  --text-main: #e8e8f5;
+  --text-dim: #8a8aad;
+  --font-pixel: 'Courier New', 'PressStart2P-fallback', monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-deep);
+  color: var(--text-main);
+  font-family: var(--font-pixel);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+}
+
+body {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(0,240,240,0.10) 0%, transparent 45%),
+    radial-gradient(circle at 85% 15%, rgba(240,0,240,0.10) 0%, transparent 45%),
+    radial-gradient(circle at 50% 100%, rgba(255,153,0,0.08) 0%, transparent 50%),
+    radial-gradient(circle at 50% 0%, #191933 0%, var(--bg-deep) 70%);
+  user-select: none;
+}
+
+#app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  padding: env(safe-area-inset-top, 12px) env(safe-area-inset-right, 12px)
+           env(safe-area-inset-bottom, 12px) env(safe-area-inset-left, 12px);
+}
+.screen.active { display: flex; }
+#screen-menu.active { justify-content: center; position: relative; }
+.screen:not(#screen-game) { padding-bottom: 46px; } /* leaves room for the fixed footer */
+
+/* ---------------- Menu background decoration ---------------- */
+.menu-decor {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.decor-block {
+  position: absolute;
+  top: -40px;
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
+  opacity: 0.16;
+  animation: decorFall linear infinite;
+}
+.decor-block.c1 { left: 8%;  background: var(--accent-cyan);    animation-duration: 14s; animation-delay: 0s; }
+.decor-block.c2 { left: 22%; background: var(--accent-yellow);  animation-duration: 18s; animation-delay: 2s; width: 20px; height: 20px; }
+.decor-block.c3 { left: 40%; background: var(--accent-magenta); animation-duration: 16s; animation-delay: 5s; }
+.decor-block.c4 { left: 62%; background: var(--accent-green);   animation-duration: 20s; animation-delay: 1s; width: 32px; height: 32px; }
+.decor-block.c5 { left: 78%; background: var(--accent-orange);  animation-duration: 15s; animation-delay: 7s; }
+.decor-block.c6 { left: 92%; background: var(--accent-red);     animation-duration: 19s; animation-delay: 4s; width: 22px; height: 22px; }
+@keyframes decorFall {
+  0%   { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(115vh) rotate(360deg); }
+}
+body.anim-off .decor-block { animation: none; display: none; }
+
+/* ---------------- Title ---------------- */
+.title-block {
+  text-align: center;
+  margin-top: 5vh;
+  margin-bottom: 2.5vh;
+  position: relative;
+  z-index: 1;
+}
+.title-block h1 {
+  font-size: clamp(2rem, 8vw, 3.4rem);
+  letter-spacing: 0.15em;
+  margin: 0;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-yellow), var(--accent-magenta), var(--accent-green), var(--accent-cyan));
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: titleShift 6s linear infinite;
+  filter: drop-shadow(3px 3px 0 rgba(0,0,0,0.5));
+}
+@keyframes titleShift {
+  0% { background-position: 0% center; }
+  100% { background-position: 300% center; }
+}
+.title-block .subtitle {
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  margin-top: 8px;
+}
+.title-block .subtitle-2 {
+  color: var(--accent-orange);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  margin-top: 6px;
+}
+
+.top-score-teaser {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, rgba(240,240,0,0.14), rgba(240,0,240,0.08));
+  border: 2px solid var(--accent-yellow);
+  border-radius: 6px;
+  padding: 8px 18px;
+  margin-bottom: 18px;
+  width: min(320px, 84vw);
+  box-shadow: 0 0 14px rgba(240,240,0,0.12);
+}
+.top-score-teaser .tst-label { color: var(--text-dim); letter-spacing: 0.1em; font-size: 0.55rem; }
+.top-score-teaser .tst-value { color: var(--accent-yellow); font-size: 1.05rem; }
+.top-score-teaser .tst-name { color: var(--accent-cyan); font-size: 0.7rem; }
+.top-score-teaser.tst-empty { border-color: var(--border-neon); box-shadow: none; }
+.top-score-teaser.tst-empty .tst-label { color: var(--text-dim); font-size: 0.65rem; letter-spacing: 0.05em; }
+
+.menu-buttons {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: min(320px, 84vw);
+}
+
+.name-entry {
+  position: relative;
+  z-index: 1;
+  width: min(320px, 84vw);
+  margin-bottom: 22px;
+  background: var(--bg-panel);
+  border: 2px solid var(--border-neon);
+  border-radius: 6px;
+  padding: 12px 14px;
+  text-align: center;
+}
+.name-entry label {
+  display: block;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  color: var(--accent-cyan);
+  margin-bottom: 8px;
+}
+.name-entry input[type="text"] {
+  width: 100%;
+  font-family: var(--font-pixel);
+  background: var(--bg-panel-light);
+  color: var(--accent-yellow);
+  border: 2px solid var(--border-neon);
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 1rem;
+  text-align: center;
+  letter-spacing: 0.1em;
+}
+.name-entry input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(0,240,240,0.4);
+}
+
+.pixel-btn {
+  font-family: var(--font-pixel);
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  padding: 14px 18px;
+  background: linear-gradient(180deg, var(--bg-panel-light), var(--bg-panel));
+  color: var(--text-main);
+  border: 3px solid var(--border-neon);
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #000;
+  transition: transform 0.05s ease, box-shadow 0.05s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.pixel-btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+.pixel-btn:active,
+.pixel-btn.btn-active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #000;
+}
+.pixel-btn.primary { border-color: var(--accent-yellow); color: var(--accent-yellow); box-shadow: 0 4px 0 #000, 0 0 14px rgba(240,240,0,0.25); }
+.pixel-btn.small { font-size: 0.75rem; padding: 10px 14px; }
+.pixel-btn.danger { border-color: var(--accent-red); color: var(--accent-red); }
+
+/* ---------------- Game screen: full-height CSS Grid shell ---------------- */
+#screen-game {
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+/* Desktop: 3 columns — instructions | board (which itself pairs the NEXT
+   box tightly against the canvas internally) | controls.
+   Mobile (media query further down): 2 rows — board on top, controls
+   (including its own NEXT box) in a bottom bar. */
+.game-shell {
+  display: grid;
+  grid-template-columns: 168px 1fr 168px;
+  grid-template-rows: 1fr;
+  grid-template-areas: "instructions board controls";
+  column-gap: 10px;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  padding: 8px;
+  padding-top: max(8px, env(safe-area-inset-top));
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+  padding-left: max(8px, env(safe-area-inset-left));
+  padding-right: max(8px, env(safe-area-inset-right));
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  padding: 4px 2px;
+  min-height: 0;
+}
+.panel-left {
+  grid-area: instructions;
+  align-items: stretch;
+  border-right: 2px solid rgba(0,240,240,0.15);
+}
+.panel-right {
+  grid-area: controls;
+  align-items: stretch;
+  border-left: 2px solid rgba(240,0,240,0.15);
+}
+
+.panel-title {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--accent-cyan);
+  margin: 4px 0;
+  text-align: center;
+}
+
+.mini-howto {
+  list-style: none;
+  margin: 0 0 6px;
+  padding: 10px;
+  background: var(--bg-panel);
+  border: 2px solid var(--border-neon);
+  border-radius: 6px;
+  font-size: 0.62rem;
+  line-height: 1.9;
+  color: var(--text-dim);
+}
+.mini-howto li { display: flex; justify-content: space-between; gap: 6px; }
+.mini-howto kbd {
+  background: var(--bg-panel-light);
+  border: 1px solid var(--border-neon);
+  border-radius: 3px;
+  padding: 1px 5px;
+  color: var(--accent-yellow);
+  font-size: 0.6rem;
+}
+
+.player-badge {
+  background: linear-gradient(135deg, rgba(0,240,240,0.12), rgba(240,0,240,0.10));
+  border: 2px solid var(--accent-cyan);
+  border-radius: 6px;
+  padding: 8px 10px;
+  text-align: center;
+}
+.player-badge .hud-label { color: var(--text-dim); font-size: 0.55rem; letter-spacing: 0.15em; }
+.player-badge .hud-value { color: var(--accent-yellow); font-size: 0.9rem; margin-top: 4px; word-break: break-word; }
+
+.panel-stats { display: flex; flex-direction: column; gap: 8px; }
+
+.hud-box {
+  background: var(--bg-panel);
+  border: 2px solid var(--border-neon);
+  border-radius: 4px;
+  padding: 8px 10px;
+  width: 100%;
+  text-align: center;
+}
+.hud-box.hud-score { border-color: rgba(240,240,0,0.4); }
+.hud-box.hud-level { border-color: rgba(0,240,0,0.4); }
+.hud-box.hud-lines { border-color: rgba(0,240,240,0.4); }
+.hud-box .hud-label {
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+}
+.hud-box .hud-value {
+  font-size: 1.05rem;
+  margin-top: 4px;
+}
+.hud-score .hud-value { color: var(--accent-yellow); }
+.hud-level .hud-value { color: var(--accent-green); }
+.hud-lines .hud-value { color: var(--accent-cyan); }
+
+.mobile-stats { display: none; gap: 10px; }
+.mobile-stat { display: flex; flex-direction: column; align-items: center; font-size: 0.55rem; }
+.mobile-stat span { font-size: 0.85rem; color: var(--accent-yellow); }
+.mobile-stat:nth-child(2) span { color: var(--accent-green); }
+.mobile-stat:nth-child(3) span { color: var(--accent-cyan); }
+.mobile-stat label { color: var(--text-dim); font-size: 0.5rem; letter-spacing: 0.05em; }
+
+/* ---------------- Board (fills available height) ---------------- */
+.board-col {
+  grid-area: board;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 30px; /* exact, guaranteed gap between the NEXT box and the canvas */
+  height: 100%;
+}
+
+#board-wrap {
+  position: relative;
+  flex: 0 0 auto; /* sized explicitly via JS inline width/height — no flex-grow/shrink to fight with */
+  min-width: 0;
+  border: 4px solid var(--border-neon);
+  border-radius: 4px;
+  background: #0b0b16;
+  box-shadow: 0 0 28px rgba(0,240,240,0.12), 0 0 50px rgba(240,0,240,0.06), inset 0 0 30px rgba(0,0,0,0.7);
+  overflow: hidden;
+}
+#board-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+#board-touch-zone {
+  position: absolute;
+  inset: 0;
+}
+
+/* NEXT-piece preview: paired directly with the board (not an overlay on
+   top of it, not a separate grid column) so the 30px gap above is exact
+   regardless of how wide the instructions panel is. On mobile this
+   instance is hidden — a second copy inside panel-right takes over,
+   living in the bottom bar instead (see .next-standalone-mobile). */
+.next-standalone {
+  flex: 0 0 auto;
+  background: rgba(10,10,20,0.9);
+  border: 2px solid var(--accent-magenta);
+  border-radius: 6px;
+  padding: 6px 8px;
+  text-align: center;
+  box-shadow: 0 0 12px rgba(240,0,240,0.25);
+  width: 76px;
+  overflow: hidden; /* guarantees the piece can never visually spill past the box */
+}
+.next-standalone .hud-label {
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+}
+.next-standalone canvas {
+  display: block;
+  width: 60px;
+  height: 60px;
+  margin: 4px auto 0;
+  background: #0b0b16;
+  border-radius: 3px;
+}
+
+.next-standalone-mobile { display: none; } /* shown only on mobile — see max-width:700px */
+
+/* ---------------- Overlays ---------------- */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 3, 10, 0.88);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  z-index: 20;
+  text-align: center;
+  padding: 16px;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+.overlay.active { display: flex; opacity: 1; }
+.overlay h2 {
+  font-size: 1.5rem;
+  color: var(--accent-yellow);
+  letter-spacing: 0.15em;
+  margin: 0;
+}
+.go-stats { display: flex; flex-direction: column; gap: 6px; margin: 6px 0 10px; }
+.go-stats .go-name { color: var(--accent-cyan); font-size: 1rem; }
+.go-stats .go-row { font-size: 0.75rem; color: var(--text-dim); }
+.go-stats .go-row b { color: var(--text-main); font-size: 1rem; }
+.submitted-msg { color: var(--accent-green); font-size: 0.8rem; }
+.submit-error-msg { color: var(--accent-red); font-size: 0.75rem; display: block; max-width: 260px; }
+
+/* ---------------- Right-side control stack ---------------- */
+.control-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.control-stack-title {
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  color: var(--accent-cyan);
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+/* Fixed order per the requested layout: Left/Right, Soft, Rotate, Joystick,
+   Drop, Pause, End Game, Full Screen. All buttons are always visible —
+   no collapsing/toggling. */
+.lr-row { order: 1; }
+#btn-down { order: 2; }
+#btn-rotate { order: 3; }
+.joystick-wrap { order: 4; }
+#btn-harddrop { order: 5; }
+#btn-pause { order: 6; }
+#btn-end-game { order: 7; }
+#btn-fullscreen { order: 8; }
+
+.ctrl-btn {
+  background: var(--bg-panel-light);
+  border: 2px solid var(--border-neon);
+  border-radius: 8px;
+  color: var(--text-main);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  touch-action: none;
+  user-select: none;
+  padding: 10px 8px;
+  width: 100%;
+  transition: background 0.08s ease, box-shadow 0.08s ease;
+}
+.ctrl-btn span { font-size: 0.55rem; letter-spacing: 0.08em; }
+.ctrl-btn.btn-active { transform: translateY(1px); }
+
+.ctrl-btn.c-yellow { border-color: var(--accent-yellow); }
+.ctrl-btn.c-yellow.btn-active { background: var(--accent-yellow); color: #000; box-shadow: 0 0 14px var(--accent-yellow); }
+.ctrl-btn.c-cyan { border-color: var(--accent-cyan); }
+.ctrl-btn.c-cyan.btn-active { background: var(--accent-cyan); color: #000; box-shadow: 0 0 14px var(--accent-cyan); }
+.ctrl-btn.c-green { border-color: var(--accent-green); }
+.ctrl-btn.c-green.btn-active { background: var(--accent-green); color: #000; box-shadow: 0 0 14px var(--accent-green); }
+.ctrl-btn.c-magenta { border-color: var(--accent-magenta); }
+.ctrl-btn.c-magenta.btn-active { background: var(--accent-magenta); color: #000; box-shadow: 0 0 14px var(--accent-magenta); }
+.ctrl-btn.c-orange { border-color: var(--accent-orange); }
+.ctrl-btn.c-orange.btn-active { background: var(--accent-orange); color: #000; box-shadow: 0 0 14px var(--accent-orange); }
+.ctrl-btn.c-red { border-color: var(--accent-red); }
+.ctrl-btn.c-red.btn-active { background: var(--accent-red); color: #fff; box-shadow: 0 0 14px var(--accent-red); }
+.ctrl-btn.c-neutral { border-color: var(--border-neon); }
+
+.lr-row { display: flex; gap: 8px; }
+.lr-row .ctrl-btn { flex: 1; }
+
+.joystick-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 0;
+}
+#joystick-base {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--bg-panel-light);
+  border: 2px solid var(--accent-cyan);
+  position: relative;
+  touch-action: none;
+}
+#joystick-knob {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 12px var(--accent-cyan);
+  position: absolute;
+  top: 50%; left: 50%;
+  margin: -20px 0 0 -20px;
+  transition: transform 0.05s ease;
+}
+
+/* Joystick and arrow buttons are both shown on desktop (either works with
+   a mouse). Mobile hides the arrow buttons and enlarges the joystick,
+   since movement there is joystick-only — see the max-width:700px block. */
+
+/* ---------------- Settings / High scores / How to play ---------------- */
+.panel-card {
+  background: var(--bg-panel);
+  border: 2px solid var(--border-neon);
+  border-radius: 6px;
+  padding: 20px;
+  width: min(520px, 92vw);
+  margin: 4vh auto 20px;
+}
+.panel-card h2 {
+  margin-top: 0;
+  color: var(--accent-yellow);
+  letter-spacing: 0.12em;
+  font-size: 1.1rem;
+}
+.panel-card h3 {
+  color: var(--accent-cyan);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  margin: 18px 0 8px;
+}
+.field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 0.8rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.field-row label { color: var(--text-main); flex: 1; }
+.field-row input[type="text"],
+.field-row select {
+  font-family: var(--font-pixel);
+  background: var(--bg-panel-light);
+  color: var(--text-main);
+  border: 2px solid var(--border-neon);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 0.8rem;
+}
+.field-row input[type="range"] { width: 120px; accent-color: var(--accent-cyan); }
+.switch {
+  position: relative;
+  width: 42px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch .slider {
+  position: absolute; inset: 0;
+  background: var(--bg-panel-light);
+  border: 2px solid var(--border-neon);
+  border-radius: 22px;
+  cursor: pointer;
+  transition: 0.15s;
+}
+.switch .slider::before {
+  content: "";
+  position: absolute;
+  height: 14px; width: 14px;
+  left: 2px; top: 2px;
+  background: var(--text-dim);
+  border-radius: 50%;
+  transition: 0.15s;
+}
+.switch input:checked + .slider { border-color: var(--accent-cyan); }
+.switch input:checked + .slider::before { transform: translateX(18px); background: var(--accent-cyan); }
+
+.highscores-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: min(480px, 92vw);
+}
+.highscores-list li {
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  grid-template-areas: "rank name score" "rank name meta";
+  align-items: center;
+  gap: 4px 10px;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-size: 0.85rem;
+}
+.highscores-list li:nth-child(1) .hs-rank { color: var(--accent-yellow); text-shadow: 0 0 8px var(--accent-yellow); }
+.highscores-list li:nth-child(2) .hs-rank { color: #d0d0e8; }
+.highscores-list li:nth-child(3) .hs-rank { color: var(--accent-orange); }
+.hs-rank { grid-area: rank; color: var(--accent-cyan); }
+.hs-name { grid-area: name; color: var(--text-main); }
+.hs-score { grid-area: score; color: var(--accent-green); }
+.hs-meta { grid-area: meta; color: var(--text-dim); font-size: 0.65rem; }
+.hs-loading, .hs-empty { text-align: center; color: var(--text-dim); padding: 16px; }
+#hs-source-note { color: var(--text-dim); font-size: 0.65rem; text-align: center; margin-top: 8px; }
+
+.howto-list { font-size: 0.85rem; line-height: 1.9; color: var(--text-main); }
+.howto-list kbd {
+  background: var(--bg-panel-light);
+  border: 1px solid var(--border-neon);
+  border-radius: 3px;
+  padding: 2px 6px;
+  color: var(--accent-cyan);
+}
+
+/* ---------------- Effects ---------------- */
+body.crt-on #board-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.18) 0px,
+    rgba(0,0,0,0.18) 1px,
+    transparent 2px,
+    transparent 3px
+  );
+  mix-blend-mode: multiply;
+  z-index: 5;
+}
+body.crt-on #board-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 60px rgba(0,0,0,0.6);
+  z-index: 6;
+}
+
+/* Smooth, non-jarring feedback: gentle glow pulses instead of shakes/jerks.
+   The actual "dust" visual for cleared lines is drawn on the canvas itself
+   (see game.js particle system) — these classes just add a soft board glow. */
+@keyframes glowPulse {
+  0% { box-shadow: 0 0 28px rgba(0,240,240,0.12), 0 0 50px rgba(240,0,240,0.06), inset 0 0 30px rgba(0,0,0,0.7); }
+  40% { box-shadow: 0 0 46px rgba(0,240,240,0.35), 0 0 70px rgba(240,0,240,0.18), inset 0 0 30px rgba(0,0,0,0.7); }
+  100% { box-shadow: 0 0 28px rgba(0,240,240,0.12), 0 0 50px rgba(240,0,240,0.06), inset 0 0 30px rgba(0,0,0,0.7); }
+}
+@keyframes glowPulseBig {
+  0% { box-shadow: 0 0 28px rgba(240,240,0,0.15), inset 0 0 30px rgba(0,0,0,0.7); }
+  40% { box-shadow: 0 0 60px rgba(240,240,0,0.5), inset 0 0 30px rgba(0,0,0,0.7); }
+  100% { box-shadow: 0 0 28px rgba(240,240,0,0.15), inset 0 0 30px rgba(0,0,0,0.7); }
+}
+@keyframes flashBomb {
+  0% { box-shadow: 0 0 28px rgba(255,153,51,0.15), inset 0 0 30px rgba(0,0,0,0.7); }
+  30% { box-shadow: 0 0 70px rgba(255,153,51,0.65), 0 0 110px rgba(255,60,0,0.3), inset 0 0 30px rgba(0,0,0,0.7); }
+  100% { box-shadow: 0 0 28px rgba(255,153,51,0.15), inset 0 0 30px rgba(0,0,0,0.7); }
+}
+@keyframes fadeInPulse {
+  0% { opacity: 0.6; transform: scale(0.98); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+#board-wrap.flash-clear { animation: glowPulse 0.32s ease; }
+#board-wrap.flash-tetris { animation: glowPulse 0.5s ease; }
+#board-wrap.shake-big { animation: glowPulseBig 0.5s ease; }
+#board-wrap.flash-bomb { animation: flashBomb 0.38s ease; }
+.overlay.active { animation: fadeInPulse 0.18s ease; }
+
+body.anim-off #board-wrap.flash-clear,
+body.anim-off #board-wrap.flash-tetris,
+body.anim-off #board-wrap.shake-big,
+body.anim-off #board-wrap.flash-bomb,
+body.anim-off .overlay.active {
+  animation: none !important;
+}
+
+/* Bomb-piece spawn toast — impossible-to-miss confirmation the moment a
+   bomb piece becomes active, on top of the small "!" badge in NEXT. */
+.bomb-toast {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.85);
+  background: rgba(20, 5, 0, 0.92);
+  border: 2px solid var(--accent-orange);
+  border-radius: 8px;
+  padding: 10px 18px;
+  color: var(--accent-orange);
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  box-shadow: 0 0 24px rgba(255,153,51,0.5);
+  z-index: 16;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.bomb-toast.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  animation: bombToastPulse 1.4s ease;
+}
+@keyframes bombToastPulse {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+  15% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+  25% { transform: translate(-50%, -50%) scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+}
+body.anim-off .bomb-toast.show { animation: none; opacity: 1; }
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 900px) {
+  .game-shell { grid-template-columns: 128px auto 1fr 128px; }
+  .mini-howto { font-size: 0.56rem; }
+}
+
+@media (max-width: 700px) {
+  /* Mobile grid: board spans the top row; the bottom bar (panel-right,
+     which now includes its own NEXT box) takes the row below — this is
+     what used to be the side "right panel", now docked to the bottom so
+     nearly the full width goes to board height. */
+  .game-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+    grid-template-areas:
+      "board"
+      "controls";
+    row-gap: 6px;
+    padding: 6px;
+    padding-top: max(4px, env(safe-area-inset-top));
+    padding-bottom: max(4px, env(safe-area-inset-bottom));
+  }
+  .panel-left { display: none; } /* prioritize board + bottom controls on small screens */
+
+  /* The desktop NEXT box (paired with the canvas) is hidden here — a
+     separate instance inside panel-right takes over, in the bottom bar. */
+  .next-standalone { display: none; }
+  .next-standalone-mobile {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: auto;
+    padding: 4px 10px;
+    flex: 0 0 auto;
+  }
+  .next-standalone-mobile canvas { width: 50px; height: 50px; }
+
+  .panel-right {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 6px 8px;
+    border-left: none;
+    border-top: 2px solid rgba(240,0,240,0.2);
+    overflow: visible;
+  }
+
+  .player-badge { flex: 0 0 auto; padding: 4px 8px; text-align: left; }
+  .player-badge .hud-label { display: none; }
+  .player-badge .hud-value { font-size: 0.7rem; margin-top: 0; }
+
+  .mobile-stats { display: flex; flex: 0 1 auto; }
+
+  /* Requested mobile control set: Joystick, Soft Drop, Drop, Pause, End Game.
+     Left/Right buttons, Rotate, and Fullscreen are all hidden — movement is
+     joystick-only, and rotating is done by tapping the board. */
+  .lr-row,
+  #btn-rotate,
+  #btn-fullscreen {
+    display: none !important;
+  }
+
+  .control-stack {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 0;
+    flex: 1 1 auto;
+  }
+  .control-stack-title { display: none; }
+
+  /* Requested sizing: ~55px square buttons with large icon glyphs. */
+  .ctrl-btn {
+    width: 55px;
+    height: 55px;
+    font-size: 1.85rem;
+    padding: 0;
+    flex: 0 0 auto;
+  }
+  .ctrl-btn span { display: none; }
+
+  /* Bigger joystick on mobile — it's the primary movement control there. */
+  .joystick-wrap { padding: 0; }
+  #joystick-base { width: 92px; height: 92px; }
+  #joystick-knob { width: 40px; height: 40px; margin: -20px 0 0 -20px; }
+}
+
+@media (max-width: 480px) {
+  .title-block h1 { font-size: 2rem; }
+  .mobile-stats { gap: 6px; }
+  .mobile-stat { font-size: 0.5rem; }
+  .mobile-stat span { font-size: 0.75rem; }
+  .player-badge { display: none; } /* name already shown on the Game Over screen; save bottom-bar space */
+  .next-standalone-mobile canvas { width: 44px; height: 44px; }
+}
+
+@media (orientation: landscape) and (max-height: 480px) {
+  /* Landscape phones have height to spare but not width — revert to the
+     desktop-style side-column grid instead of the portrait bottom-bar one. */
+  .game-shell {
+    grid-template-columns: 120px 1fr 108px;
+    grid-template-rows: 1fr;
+    grid-template-areas: "instructions board controls";
+  }
+  .panel-left { display: flex; }
+
+  .board-col { gap: 16px; } /* less width to spare than full desktop, so a tighter gap */
+  .next-standalone { display: flex; width: 60px; }
+  .next-standalone canvas { width: 44px; height: 44px; }
+  .next-standalone-mobile { display: none; } /* the side-paired version above takes over */
+
+  .panel-right {
+    flex-direction: column;
+    align-items: stretch;
+    border-left: 2px solid rgba(240,0,240,0.15);
+    border-top: none;
+  }
+  .player-badge { text-align: center; display: flex; }
+  .player-badge .hud-label { display: block; }
+  .mobile-stats { display: none; }
+
+  /* In landscape there's room, so restore the full desktop control set. */
+  .lr-row,
+  #btn-rotate,
+  #btn-fullscreen {
+    display: flex !important;
+  }
+  .control-stack {
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+  .control-stack-title { display: block; }
+  .ctrl-btn {
+    width: auto;
+    height: auto;
+    font-size: 1rem;
+    padding: 10px 8px;
+  }
+  .ctrl-btn span { display: inline; }
+  .lr-row .ctrl-btn { flex: 1; }
+  .joystick-wrap { padding: 6px 0; }
+  #joystick-base { width: 80px; height: 80px; }
+  #joystick-knob { width: 34px; height: 34px; margin: -17px 0 0 -17px; }
+  .panel-right { overflow-y: auto; overflow-x: hidden; }
+}
+
+.hidden { display: none !important; }
+
+/* ---------------- Site footer ---------------- */
+.site-footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  text-align: center;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  padding: 7px 10px calc(7px + env(safe-area-inset-bottom, 0px));
+  background: rgba(5,5,10,0.88);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  z-index: 30;
+  letter-spacing: 0.03em;
+}
+.site-footer .heart { color: var(--accent-red); }
+.site-footer a { color: var(--accent-cyan); text-decoration: none; }
+.site-footer a:hover { text-decoration: underline; }
+.site-footer.footer-hidden { display: none; }
