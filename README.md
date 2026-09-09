@@ -1,6 +1,7 @@
 <div align="center">
 
 # 🕹️ Classic Tetris — Web Edition
+Developed by **Rashid Rupani**
 
 **A pixel-perfect, 90s-style Tetris rebuilt for the modern web — with bomb pieces.**
 
@@ -16,6 +17,18 @@
 </div>
 
 ---
+
+## 👤 Author
+
+**Rashid Rupani**
+- GitHub: [@rashidrupani](https://github.com/rashidrupani)
+- X: [rashidrupani](https://x.com/rashidrupani)
+- Instagram [rashidrupani](https://instagram.com/rashidrupani)
+- YouTube [rashidrupani](https://youtube.com/rashidrupani)
+- Website: [ouchh.com](https://ouchh.com)
+
+## ⭐ Show Your Support
+
 
 ## Why this Tetris
 
